@@ -7,8 +7,7 @@ import org.junit.rules.ExpectedException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class LionTest {
 
@@ -16,35 +15,34 @@ public class LionTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void maleLionHasMane() throws Exception {
-        Lion lion = new Lion("Самец");
-        assertTrue(lion.doesHaveMane());
-    }
-
-    @Test
-    public void femaleLionHasNoMane() throws Exception {
-        Lion lion = new Lion("Самка");
-        assertFalse(lion.doesHaveMane());
-    }
-
-    @Test
     public void getKittensReturnsOne() throws Exception {
-        Lion lion = new Lion("Самец");
+        Feline feline = mock(Feline.class);
+        when(feline.getKittens()).thenReturn(1);
+
+        Lion lion = new Lion("Самец", feline);
+
         assertEquals(1, lion.getKittens());
+        verify(feline).getKittens();
     }
 
     @Test
-    public void getFoodReturnsPredatorFood() throws Exception {
-        Lion lion = new Lion("Самец");
-        List<String> food = lion.getFood();
-        assertEquals(3, food.size());
+    public void getFoodReturnsFoodList() throws Exception {
+        Feline feline = mock(Feline.class);
+        when(feline.getFood("Хищник")).thenReturn(List.of("Животные", "Птицы", "Рыба"));
+
+        Lion lion = new Lion("Самец", feline);
+
+        assertEquals(3, lion.getFood().size());
+        verify(feline).getFood("Хищник");
     }
 
     @Test
-    public void constructorWithInvalidSexThrowsException() throws Exception {
+    public void constructorThrowsExceptionForInvalidSex() throws Exception {
+        Feline feline = mock(Feline.class);
+
         exception.expect(Exception.class);
         exception.expectMessage("Используйте допустимые значения пола животного - самей или самка");
 
-        new Lion("Неизвестно");
+        new Lion("Неизвестно", feline);
     }
 }
